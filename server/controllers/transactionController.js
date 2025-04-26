@@ -45,7 +45,7 @@ class TransactionController {
 
   async getAll(req, res, next) {
     try {
-      const { type, frequency, startDate, endDate } = req.query;
+      const { type, frequency, startDate, endDate, page = 1, limit = 10 } = req.query;
       const userId = req.user._id;
 
       const query = { user: userId };
@@ -94,8 +94,15 @@ class TransactionController {
         query.date = dateFilter;
       }
 
+      const total = await Transaction.countDocuments(query);
+
+      const offset = (page - 1) * limit;
+      const totalPages = Math.ceil(total / limit);
+
       const transactions = await Transaction.find(query)
         .sort({ date: -1 })
+        .offset(offset)
+        .limit(Number(limit))
         .lean();
 
       const stats = {
@@ -135,6 +142,12 @@ class TransactionController {
         success: true,
         transactions,
         stats,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages
+        },
         filter: {
           type,
           frequency,

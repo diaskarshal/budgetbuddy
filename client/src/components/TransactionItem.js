@@ -4,7 +4,7 @@ import Image from "react-bootstrap/Image";
 import { useNavigate } from "react-router-dom";
 import { DEVICE_ROUTE } from "../utils/consts";
 
-const DeviceItem = ({ device }) => {
+const TransactionItem = ({ device }) => {
   const navigate = useNavigate()
   const imageURL = `${process.env.REACT_APP_API_URL}/${device.img}`;
   return (
@@ -28,4 +28,4 @@ const DeviceItem = ({ device }) => {
   );
 };
 
-export default DeviceItem;
+export default TransactionItem;

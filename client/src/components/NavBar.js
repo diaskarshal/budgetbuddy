@@ -3,14 +3,17 @@ import { Context } from "../index";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import { NavLink } from "react-router-dom";
-import { ADMIN_ROUTE, LOGIN_ROUTE, SHOP_ROUTE } from "../utils/consts";
+import { STATS_ROUTE, LOGIN_ROUTE, MAIN_ROUTE } from "../utils/consts";
 import { Button } from "react-bootstrap";
 import { observer } from "mobx-react-lite";
 import Container from "react-bootstrap/Container";
 import { useNavigate } from "react-router-dom";
+import CreateTransaction from "./modals/updateTransaction";
+
 const NavBar = observer(() => {
   const { user } = useContext(Context);
   const navigate = useNavigate();
+  const [transactionVisible, setTransactionVisible] = useState(false);
 
   const logOut = () => {
     user.setUser({});
@@ -20,31 +23,31 @@ const NavBar = observer(() => {
   return (
     <Navbar bg="dark" variant="dark">
       <Container>
-        <NavLink style={{ color: "white" }} to={SHOP_ROUTE}>
-          Mobilnik
+        <NavLink style={{ color: "white" }} to={MAIN_ROUTE}>
+          BudgetBuddy
         </NavLink>
-        {user.isAuth ? (
-          <Nav className="ml-auto" style={{ color: "white" }}>
-            {user.user.role === "ADMIN" && (
-              <Button
-                variant="outline-light"
-                onClick={() => navigate(ADMIN_ROUTE)}
-              >
-                Admin Panel
-              </Button>
-            )}
-            <Button variant="outline-light" onClick={logOut} className="ms-2">
-              Log out
-            </Button>
-          </Nav>
-        ) : (
+        {user.isAuth && (
           <Nav className="ml-auto" style={{ color: "white" }}>
             <Button
               variant="outline-light"
-              onClick={() => navigate(LOGIN_ROUTE)}
+              onClick={() => setTransactionVisible(true)}
+              className="ms-2"
             >
-              Login
+              Add transaction
             </Button>
+            <Button
+              variant="outline-light"
+              onClick={() => navigate(STATS_ROUTE)}
+            >
+              Stats
+            </Button>
+            <Button variant="outline-light" onClick={logOut} className="ms-2">
+              Log out
+            </Button>
+            <CreateTransaction
+              show={transactionVisible}
+              onHide={() => setTransactionVisible(false)}
+            />
           </Nav>
         )}
       </Container>

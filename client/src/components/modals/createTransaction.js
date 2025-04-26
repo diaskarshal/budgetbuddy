@@ -1,153 +1,275 @@
-import React, { useContext, useEffect, useState } from "react";
-import Modal from "react-bootstrap/Modal";
-import { Button, Dropdown, Form, Row, Col } from "react-bootstrap";
-import { Context } from "../../index";
-import {
-  createDevice,
-  fetchBrands,
-  fetchDevices,
-  fetchTypes,
-} from "../../http/transactionAPI";
-import { observer } from "mobx-react-lite";
+import React, { useEffect, useState } from "react";
+import { Button, Container, Form, Modal, Table } from "react-bootstrap";
+import moment from "moment";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import "./home.css";
+import { deleteTransactions, editTransactions } from "../../utils/ApiRequest";
+import axios from "axios";
 
-const CreateDevice = observer(({ show, onHide }) => {
-  const { device } = useContext(Context);
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState(0);
-  const [file, setFile] = useState(null);
-  const [info, setInfo] = useState([]);
+const TableData = (props) => {
+  const [show, setShow] = useState(false);
+  const [transactions, setTransactions] = useState([]);
+  // const [loading, setLoading] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState(null);
+  const [currId, setCurrId] = useState(null);
+  const [refresh, setRefresh] = useState(false);
+  const [user, setUser] = useState(null);
+
+  const handleEditClick = (itemKey) => {
+    // const buttonId = e.target.id;
+    console.log("Clicked button ID:", itemKey);
+    if (transactions.length > 0) {
+      const editTran = props.data.filter((item) => item._id === itemKey);
+      setCurrId(itemKey);
+      setEditingTransaction(editTran);
+      handleShow();
+    }
+  };
+
+  const handleEditSubmit = async (e) => {
+    // e.preventDefault();
+
+    const { data } = await axios.put(`${editTransactions}/${currId}`, {
+      ...values,
+    });
+
+    if (data.success === true) {
+      await handleClose();
+      await setRefresh(!refresh);
+      window.location.reload();
+    } else {
+      console.log("error");
+    }
+  };
+
+  const handleDeleteClick = async (itemKey) => {
+    console.log(user._id);
+    console.log("Clicked button ID delete:", itemKey);
+    setCurrId(itemKey);
+    const { data } = await axios.post(`${deleteTransactions}/${itemKey}`, {
+      userId: props.user._id,
+    });
+
+    if (data.success === true) {
+      await setRefresh(!refresh);
+      window.location.reload();
+    } else {
+      console.log("error");
+    }
+  };
+
+  const [values, setValues] = useState({
+    title: "",
+    amount: "",
+    description: "",
+    category: "",
+    date: "",
+    transactionType: "",
+  });
+
+  const handleChange = (e) => {
+    setValues({ ...values, [e.target.name]: e.target.value });
+  };
+
+  const handleClose = () => {
+    setShow(false);
+  };
+  const handleShow = () => {
+    setShow(true);
+  };
 
   useEffect(() => {
-    fetchTypes().then((data) => device.setTypes(data));
-    fetchBrands().then((data) => device.setBrands(data));
-  }, []);
-
-  const addInfo = () => {
-    setInfo([...info, { title: "", description: "", number: Date.now() }]);
-  };
-  const removeInfo = (number) => {
-    setInfo(info.filter((i) => i.number !== number));
-  };
-  const changeInfo = (key, value, number) => {
-    setInfo(
-      info.map((i) => (i.number === number ? { ...i, [key]: value } : i))
-    );
-  };
-
-  const selectFile = (e) => {
-    setFile(e.target.files[0]);
-  };
-
-  const addDevice = () => {
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("price", `${price}`);
-    formData.append("img", file);
-    formData.append("brandId", device.selectedBrand.id);
-    formData.append("typeId", device.selectedType.id);
-    formData.append("info", JSON.stringify(info));
-    createDevice(formData).then((data) => onHide());
-  };
+    setUser(props.user);
+    setTransactions(props.data);
+  }, [props.data, props.user, refresh]);
 
   return (
-    <Modal show={show} onHide={onHide} centered>
-      <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">
-          Add device
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Form>
-          <Dropdown className="mt-2 mb-2">
-            <Dropdown.Toggle>
-              {device.selectedType.name || "Select type"}
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              {device.types.map((type) => (
-                <Dropdown.Item
-                  onClick={() => device.setSelectedType(type)}
-                  key={type.id}
-                >
-                  {type.name}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
-          <Dropdown className="mt-2 mb-2">
-            <Dropdown.Toggle>
-              {device.selectedBrand.name || "Select type"}
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              {device.brands.map((brand) => (
-                <Dropdown.Item
-                  onClick={() => device.setSelectedBrand(brand)}
-                  key={brand.id}
-                >
-                  {brand.name}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
-          <Form.Control
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="mt-3"
-            placeholder="Enter device name"
-          />
-          <Form.Control
-            value={price}
-            onChange={(e) => setPrice(Number(e.target.value))}
-            className="mt-3"
-            placeholder="Enter device price"
-            type="number"
-          />
-          <Form.Control className="mt-3" type="file" onChange={selectFile} />
-          <hr />
-          <Button variant={"outline-dark"} onClick={addInfo}>
-            Add new device
-          </Button>
-          {info.map((i) => (
-            <Row className="mt-4" key={i.number}>
-              <Col md={4}>
-                <Form.Control
-                  value={i.title}
-                  onChange={(e) =>
-                    changeInfo("title", e.target.value, i.number)
-                  }
-                  placeholder="Enter characteristic name"
-                />
-              </Col>
-              <Col md={4}>
-                <Form.Control
-                  value={i.description}
-                  onChange={(e) =>
-                    changeInfo("description", e.target.value, i.number)
-                  }
-                  placeholder="Enter device description"
-                />
-              </Col>
-              <Col md={4}>
-                <Button
-                  onClick={() => removeInfo(i.number)}
-                  variant={"outline-danger"}
-                >
-                  Delete
-                </Button>
-              </Col>
-            </Row>
-          ))}
-        </Form>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="outline-danger" onClick={onHide}>
-          Close
-        </Button>
-        <Button variant="outline-success" onClick={addDevice}>
-          Add
-        </Button>
-      </Modal.Footer>
-    </Modal>
-  );
-});
+    <>
+      <Container>
+        <Table responsive="md" className="data-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Title</th>
+              <th>Amount</th>
+              <th>Type</th>
+              <th>Category</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody className="text-white">
+            {props.data.map((item, index) => (
+              <tr key={index}>
+                <td>{moment(item.date).format("YYYY-MM-DD")}</td>
+                <td>{item.title}</td>
+                <td>{item.amount}</td>
+                <td>{item.transactionType}</td>
+                <td>{item.category}</td>
+                <td>
+                  <div className="icons-handle">
+                    <EditNoteIcon
+                      sx={{ cursor: "pointer" }}
+                      key={item._id}
+                      id={item._id}
+                      onClick={() => handleEditClick(item._id)}
+                    />
 
-export default CreateDevice;
+                    <DeleteForeverIcon
+                      sx={{ color: "red", cursor: "pointer" }}
+                      key={index}
+                      id={item._id}
+                      onClick={() => handleDeleteClick(item._id)}
+                    />
+
+                    {editingTransaction ? (
+                      <>
+                        <div>
+                          <Modal show={show} onHide={handleClose} centered>
+                            <Modal.Header closeButton>
+                              <Modal.Title>
+                                Update Transaction Details
+                              </Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                              <Form onSubmit={handleEditSubmit}>
+                                <Form.Group
+                                  className="mb-3"
+                                  controlId="formName"
+                                >
+                                  <Form.Label>Title</Form.Label>
+                                  <Form.Control
+                                    name="title"
+                                    type="text"
+                                    placeholder={editingTransaction[0].title}
+                                    value={values.title}
+                                    onChange={handleChange}
+                                  />
+                                </Form.Group>
+
+                                <Form.Group
+                                  className="mb-3"
+                                  controlId="formAmount"
+                                >
+                                  <Form.Label>Amount</Form.Label>
+                                  <Form.Control
+                                    name="amount"
+                                    type="number"
+                                    placeholder={editingTransaction[0].amount}
+                                    value={values.amount}
+                                    onChange={handleChange}
+                                  />
+                                </Form.Group>
+
+                                <Form.Group
+                                  className="mb-3"
+                                  controlId="formSelect"
+                                >
+                                  <Form.Label>Category</Form.Label>
+                                  <Form.Select
+                                    name="category"
+                                    value={values.category}
+                                    onChange={handleChange}
+                                  >
+                                    <option value="">
+                                      {editingTransaction[0].category}
+                                    </option>
+                                    <option value="Groceries">Groceries</option>
+                                    <option value="Rent">Rent</option>
+                                    <option value="Salary">Salary</option>
+                                    <option value="Tip">Tip</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Medical">Medical</option>
+                                    <option value="Utilities">Utilities</option>
+                                    <option value="Entertainment">
+                                      Entertainment
+                                    </option>
+                                    <option value="Transportation">
+                                      Transportation
+                                    </option>
+                                    <option value="Other">Other</option>
+                                  </Form.Select>
+                                </Form.Group>
+
+                                <Form.Group
+                                  className="mb-3"
+                                  controlId="formDescription"
+                                >
+                                  <Form.Label>Description</Form.Label>
+                                  <Form.Control
+                                    type="text"
+                                    name="description"
+                                    placeholder={
+                                      editingTransaction[0].description
+                                    }
+                                    value={values.description}
+                                    onChange={handleChange}
+                                  />
+                                </Form.Group>
+
+                                <Form.Group
+                                  className="mb-3"
+                                  controlId="formSelect1"
+                                >
+                                  <Form.Label>Transaction Type</Form.Label>
+                                  <Form.Select
+                                    name="transactionType"
+                                    value={values.transactionType}
+                                    onChange={handleChange}
+                                  >
+                                    <option
+                                      value={
+                                        editingTransaction[0].transactionType
+                                      }
+                                    >
+                                      {editingTransaction[0].transactionType}
+                                    </option>
+                                    <option value="Credit">Credit</option>
+                                    <option value="Expense">Expense</option>
+                                  </Form.Select>
+                                </Form.Group>
+
+                                <Form.Group
+                                  className="mb-3"
+                                  controlId="formDate"
+                                >
+                                  <Form.Label>Date</Form.Label>
+                                  <Form.Control
+                                    type="date"
+                                    name="date"
+                                    value={values.date}
+                                    onChange={handleChange}
+                                  />
+                                </Form.Group>
+                              </Form>
+                            </Modal.Body>
+                            <Modal.Footer>
+                              <Button variant="secondary" onClick={handleClose}>
+                                Close
+                              </Button>
+                              <Button
+                                variant="primary"
+                                type="submit"
+                                onClick={handleEditSubmit}
+                              >
+                                Submit
+                              </Button>
+                            </Modal.Footer>
+                          </Modal>
+                        </div>
+                      </>
+                    ) : (
+                      <></>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </Container>
+    </>
+  );
+};
+
+export default TableData;
