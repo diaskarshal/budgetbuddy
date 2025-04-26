@@ -3,22 +3,21 @@ import validator from "validator";
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: [true, "Please, write your name."],
-    },
     email: {
       type: String,
       required: [true, "Please, write your email."],
       unique: true,
-      validate: validator.isEmail,
+      lowercase: true,
+      trim: true,
+      validate: [validator.isEmail, 'Please provide a valid email'],
     },
     password: {
       type: String,
       required: [true, "Please, write your password."],
     },
     transactions: {
-      type: [],
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Transaction",
     },
   },
   {

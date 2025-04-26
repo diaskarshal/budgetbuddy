@@ -2,12 +2,8 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import { connectDB } from "./db.js";
-
 import router from "./routes/index.js";
 import errorHandler from "./middleware/ErrorHandlingMiddleware.js";
-
-import transactionModel from "./models/transactionModel.js";
-import userModel from "./models/userModel.js";
 
 dotenv.config();
 const PORT = process.env.PORT || 5000;

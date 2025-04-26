@@ -47,25 +47,106 @@ class TransactionController {
       }
 
       const query = { user: userId };
-      if (type !== "all") {
+      
+      // Filter by transaction type
+      if (type && type !== "all") {
         query.type = type;
       }
 
-      if (frequency !== "custom") {
-        query.date = {
-          $gt: moment().subtract(Number(frequency), "days").toDate(),
-        };
-      } else if (startDate && endDate) {
-        query.date = {
-          $gte: moment(startDate).toDate(),
-          $lte: moment(endDate).toDate(),
-        };
+      // Date filtering logic
+      let dateFilter = {};
+      switch (frequency) {
+        case "day":
+          dateFilter = {
+            $gte: moment().startOf('day').toDate(),
+            $lte: moment().endOf('day').toDate()
+          };
+          break;
+        case "week":
+          dateFilter = {
+            $gte: moment().startOf('week').toDate(),
+            $lte: moment().endOf('week').toDate()
+          };
+          break;
+        case "month":
+          dateFilter = {
+            $gte: moment().startOf('month').toDate(),
+            $lte: moment().endOf('month').toDate()
+          };
+          break;
+        case "year":
+          dateFilter = {
+            $gte: moment().startOf('year').toDate(),
+            $lte: moment().endOf('year').toDate()
+          };
+          break;
+        case "custom":
+          if (startDate && endDate) {
+            dateFilter = {
+              $gte: moment(startDate).startOf('day').toDate(),
+              $lte: moment(endDate).endOf('day').toDate()
+            };
+          }
+          break;
+        default:
+          // If no frequency specified, get all transactions
+          break;
       }
 
-      const transactions = await Transaction.find(query);
+      if (Object.keys(dateFilter).length > 0) {
+        query.date = dateFilter;
+      }
+
+      // Get transactions with sorting
+      const transactions = await Transaction.find(query)
+        .sort({ date: -1 }) // Sort by date descending (newest first)
+        .lean(); // Convert to plain JavaScript objects for better performance
+
+      // Calculate statistics
+      const stats = {
+        total: 0,
+        income: 0,
+        expense: 0,
+        byCategory: {},
+        byType: {
+          income: 0,
+          expense: 0
+        }
+      };
+
+      transactions.forEach(transaction => {
+        const amount = Number(transaction.amount);
+        stats.total += transaction.type === 'income' ? amount : -amount;
+        
+        if (transaction.type === 'income') {
+          stats.income += amount;
+          stats.byType.income += amount;
+        } else {
+          stats.expense += amount;
+          stats.byType.expense += amount;
+        }
+
+        // Group by category
+        if (!stats.byCategory[transaction.category]) {
+          stats.byCategory[transaction.category] = {
+            total: 0,
+            count: 0
+          };
+        }
+        stats.byCategory[transaction.category].total += amount;
+        stats.byCategory[transaction.category].count += 1;
+      });
+
       return res.status(200).json({
         success: true,
         transactions,
+        stats,
+        filter: {
+          type,
+          frequency,
+          startDate: dateFilter.$gte,
+          endDate: dateFilter.$lte
+        }
       });
     } catch (e) {
       next(ApiError.badRequest(e.message));
