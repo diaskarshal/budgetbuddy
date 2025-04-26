@@ -2,7 +2,6 @@ import ApiError from "../error/ApiError.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
-// import Transaction from "../models/transactionModel.js";
 
 const generateJwt = (id, email) => {
   return jwt.sign({ id, email }, process.env.SECRET_KEY, { expiresIn: "24h" });
@@ -22,10 +21,15 @@ class UserController {
 
     const hashPassword = await bcrypt.hash(password, 5);
     const user = await User.create({ email, password: hashPassword });
-    // const transaction = await Transaction.create({ userId: user.id });
     const token = generateJwt(user._id, user.email);
 
-    return res.json({ token });
+    return res.json({ 
+      token,
+      user: {
+        id: user._id,
+        email: user.email
+      }
+    });
   }
 
   async login(req, res, next) {
@@ -48,6 +52,24 @@ class UserController {
   async auth(req, res, next) {
     const token = generateJwt(req.user._id, req.user.email);
     return res.json({ token });
+  }
+
+  async getCurrentUser(req, res, next) {
+    try {
+      const user = await User.findById(req.user._id).select('-password');
+      if (!user) {
+        return next(ApiError.badRequest("User not found"));
+      }
+      return res.json({
+        success: true,
+        user: {
+          id: user._id,
+          email: user.email,
+        }
+      });
+    } catch (e) {
+      next(ApiError.badRequest(e.message));
+    }
   }
 }
 

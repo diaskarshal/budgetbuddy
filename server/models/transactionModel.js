@@ -16,8 +16,8 @@ const transactionSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please, specify the category."],
       enum: {
-        values: ['food', 'transport', 'entertainment', 'bills', 'salary', 'other'],
-        message: 'Please provide a valid category'
+        values: ['Food', 'Transport', 'bills', 'salary', 'other'],
+        message: 'Please, provide a valid category.'
       },
     },
     type: {

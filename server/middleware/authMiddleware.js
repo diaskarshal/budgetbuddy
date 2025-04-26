@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
+import User from "../models/userModel.js";
 
-export default function (req, res, next) {
+export default async function (req, res, next) {
   if (req.method === "OPTIONS") {
     return next();
   }
@@ -16,7 +17,17 @@ export default function (req, res, next) {
     }
 
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
-    req.user = decoded;
+    
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(401).json({ message: "User not found." });
+    }
+
+    req.user = {
+      _id: user._id,
+      email: user.email
+    };
+    
     next();
   } catch (e) {
     return res.status(401).json({ message: "Not authenticated." });

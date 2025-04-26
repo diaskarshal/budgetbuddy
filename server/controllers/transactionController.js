@@ -6,10 +6,11 @@ import moment from "moment";
 class TransactionController {
   async createTransaction(req, res, next) {
     try {
-      const { title, amount, category, type, date, userId } = req.body;
+      const { title, amount, category, type, date } = req.body;
+      const userId = req.user._id;
 
-      if (!title || !amount || !category || !type || !date) {
-        return next(ApiError.badRequest("Please, fill all fields"));
+      if (!title || !amount || !category || !type) {
+        return next(ApiError.badRequest("Please, fill all required fields"));
       }
 
       const user = await User.findById(userId);
@@ -17,20 +18,25 @@ class TransactionController {
         return next(ApiError.badRequest("No such user."));
       }
 
-      let newTransaction = await Transaction.create({
+      const newTransaction = await Transaction.create({
         title,
         amount,
         category,
         type,
-        date,
-        user: userId,
+        date: date || new Date(),
+        user: userId
       });
-      user.transactions.push(newTransaction);
+
+      if (!user.transactions) {
+        user.transactions = [];
+      }
+      user.transactions.push(newTransaction._id);
       await user.save();
 
       return res.status(200).json({
         success: true,
         message: "New transaction was added successfully",
+        transaction: newTransaction
       });
     } catch (e) {
       next(ApiError.badRequest(e.message));
@@ -39,21 +45,15 @@ class TransactionController {
 
   async getAll(req, res, next) {
     try {
-      const { userId, type, frequency, startDate, endDate } = req.body;
-
-      const user = await User.findById(userId);
-      if (!user) {
-        return next(ApiError.badRequest("No such user."));
-      }
+      const { type, frequency, startDate, endDate } = req.query;
+      const userId = req.user._id;
 
       const query = { user: userId };
       
-      // Filter by transaction type
       if (type && type !== "all") {
         query.type = type;
       }
 
-      // Date filtering logic
       let dateFilter = {};
       switch (frequency) {
         case "day":
@@ -88,21 +88,16 @@ class TransactionController {
             };
           }
           break;
-        default:
-          // If no frequency specified, get all transactions
-          break;
       }
 
       if (Object.keys(dateFilter).length > 0) {
         query.date = dateFilter;
       }
 
-      // Get transactions with sorting
       const transactions = await Transaction.find(query)
-        .sort({ date: -1 }) // Sort by date descending (newest first)
-        .lean(); // Convert to plain JavaScript objects for better performance
+        .sort({ date: -1 })
+        .lean();
 
-      // Calculate statistics
       const stats = {
         total: 0,
         income: 0,
@@ -126,7 +121,6 @@ class TransactionController {
           stats.byType.expense += amount;
         }
 
-        // Group by category
         if (!stats.byCategory[transaction.category]) {
           stats.byCategory[transaction.category] = {
             total: 0,
@@ -153,45 +147,48 @@ class TransactionController {
     }
   }
 
-  // async getOne(req, res, next) {
-  //   try {
-  //     const { id } = req.params;
-  //     const transaction = await Transaction.findById(id);
-  //     if (!transaction) {
-  //       return next(ApiError.badRequest("No such transaction."));
-  //     }
+  async getOne(req, res, next) {
+    try {
+      const { id } = req.params;
+      const userId = req.user._id;
 
-  //     return res.status(200).json({
-  //       success: true,
-  //       transaction,
-  //     });
-  //   } catch (e) {
-  //     next(ApiError.badRequest(e.message));
-  //   }
-  // }
+      const transaction = await Transaction.findOne({ _id: id, user: userId });
+      if (!transaction) {
+        return next(ApiError.badRequest("No such transaction."));
+      }
+
+      return res.status(200).json({
+        success: true,
+        transaction,
+      });
+    } catch (e) {
+      next(ApiError.badRequest(e.message));
+    }
+  }
 
   async update(req, res, next) {
     try {
       const transactionId = req.params.id;
       const { title, amount, category, type, date } = req.body;
+      const userId = req.user._id;
 
-      const transactionElement = await Transaction.findById(transactionId);
-      if (!transactionElement) {
+      const transaction = await Transaction.findOne({ _id: transactionId, user: userId });
+      if (!transaction) {
         return next(ApiError.badRequest("No such transaction."));
       }
 
-      if (title) transactionElement.title = title;
-      if (amount) transactionElement.amount = amount;
-      if (category) transactionElement.category = category;
-      if (type) transactionElement.type = type;
-      if (date) transactionElement.date = date;
+      if (title) transaction.title = title;
+      if (amount) transaction.amount = amount;
+      if (category) transaction.category = category;
+      if (type) transaction.type = type;
+      if (date) transaction.date = date;
 
-      await transactionElement.save();
+      await transaction.save();
 
       return res.status(200).json({
         success: true,
-        message: "Transaction updated successfully",
-        transaction: transactionElement,
+        message: "The transaction was updated successfully",
+        transaction
       });
     } catch (e) {
       next(ApiError.badRequest(e.message));
@@ -223,30 +220,20 @@ class TransactionController {
   async deleteOne(req, res, next) {
     try {
       const transactionId = req.params.id;
-      const userId = req.body.userId;
+      const userId = req.user._id;
 
-      const user = await User.findById(userId);
-      if (!user) {
-        return next(ApiError.badRequest("No such user."));
-      }
-
-      const transactionElement = await Transaction.findByIdAndDelete(
-        transactionId
-      );
-      if (!transactionElement) {
+      const transaction = await Transaction.findOneAndDelete({ _id: transactionId, user: userId });
+      if (!transaction) {
         return next(ApiError.badRequest("No such transaction."));
       }
 
-      user.transactions = user.transactions.filter(
-        // (transaction) => transaction._id.toString() !== transactionId
-        (transaction) => transaction._id.toString() === transactionId
-      );
-
-      await user.save();
+      await User.findByIdAndUpdate(userId, {
+        $pull: { transactions: transactionId }
+      });
 
       return res.status(200).json({
         success: true,
-        message: "Transaction deleted successfully",
+        message: "The transaction was deleted successfully"
       });
     } catch (e) {
       next(ApiError.badRequest(e.message));
