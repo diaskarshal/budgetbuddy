@@ -17,8 +17,8 @@ const amountOptions = [
 
 const FilterBar = ({ filters, onChange }) => {
   return (
-    <Row className="mb-3">
-      <Col md={3}>
+    <Row className="mb-2">
+      <Col md={2}>
         <Dropdown onSelect={(val) => onChange({ frequency: val })}>
           <Dropdown.Toggle variant="outline-secondary" id="dropdown-frequency">
             {frequencyOptions.find((opt) => opt.value === filters.frequency)
@@ -33,7 +33,7 @@ const FilterBar = ({ filters, onChange }) => {
           </Dropdown.Menu>
         </Dropdown>
       </Col>
-      <Col md={3}>
+      <Col md={2}>
         <Dropdown onSelect={(val) => onChange({ amount: val })}>
           <Dropdown.Toggle variant="outline-secondary" id="dropdown-amount">
             {amountOptions.find((opt) => opt.value === filters.amount)?.label ||

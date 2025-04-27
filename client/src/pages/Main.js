@@ -55,7 +55,6 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { $authHost } from "../http/index";
-import TopBar from "../components/NavBar";
 import CategorySidebar from "../components/CategorySideBar";
 import FilterBar from "../components/FilterBar";
 import TransactionTable from "../components/TransactionTable";
@@ -79,11 +78,16 @@ const MainPage = () => {
   const [editTransaction, setEditTransaction] = useState(null);
 
   const fetchCategories = useCallback(async () => {
-    const { data } = await $authHost.get("api/categories");
-    setCategories({
-      expense: data.filter((c) => c.type === "expense"),
-      income: data.filter((c) => c.type === "income"),
-    });
+    try {
+      const { data } = await $authHost.get("api/categories/");
+      setCategories({
+        expense: data.filter((c) => c.type === "expense"),
+        income: data.filter((c) => c.type === "income"),
+      });
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      setCategories({ expense: [], income: [] });
+    }
   }, []);
 
   const fetchTransactions = useCallback(async () => {
@@ -138,12 +142,7 @@ const MainPage = () => {
   };
 
   return (
-    <Container fluid>
-      <TopBar
-        onAdd={handleAddTransaction}
-        categories={categories}
-        onSubmit={handleFormSubmit}
-      />
+    <Container fluid className="mt-4">
       <Row>
         <Col md={2}>
           <CategorySidebar

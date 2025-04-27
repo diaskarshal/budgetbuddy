@@ -44,6 +44,7 @@ const NavBar = observer(({ onAdd, categories, onSubmit }) => {
             <Button
               variant="outline-light"
               onClick={() => navigate(STATS_ROUTE)}
+              className="ms-2"
             >
               Stats
             </Button>
@@ -64,22 +65,3 @@ const NavBar = observer(({ onAdd, categories, onSubmit }) => {
 });
 
 export default NavBar;
-// import React from 'react';
-// import { Navbar, Nav, Button } from 'react-bootstrap';
-// import { useNavigate } from 'react-router-dom';
-
-// const NavBar = ({ onAdd }) => {
-//   const navigate = useNavigate();
-//   return (
-//     <Navbar bg="secondary" variant="light" className="mb-3" style={{ padding: '0.5rem 1rem' }}>
-//       <Navbar.Brand style={{ color: 'white', fontWeight: 'bold' }}>BudgetBuddy</Navbar.Brand>
-//       <Nav className="ms-auto align-items-center">
-//         <Button variant="outline-dark" className="me-2" onClick={onAdd}>Add transaction</Button>
-//         <Button variant="outline-dark" className="me-2" onClick={() => navigate('/stats')}>Stats</Button>
-//         <Button variant="outline-dark" onClick={() => navigate('/logout')}>Log out</Button>
-//       </Nav>
-//     </Navbar>
-//   );
-// };
-
-// export default NavBar;

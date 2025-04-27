@@ -50,7 +50,9 @@ const TransactionForm = ({
   };
 
   const categoryList =
-    form.type === "expense" ? categories.expense : categories.income;
+    form.type === "expense"
+      ? categories?.expense || []
+      : categories?.income || [];
 
   return (
     <Modal show={show} onHide={onHide}>

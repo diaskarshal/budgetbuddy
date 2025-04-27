@@ -96,13 +96,14 @@ class TransactionController {
 
       const total = await Transaction.countDocuments(query);
 
-      const offset = (page - 1) * limit;
+      const skip = (page - 1) * limit;
       const totalPages = Math.ceil(total / limit);
 
       const transactions = await Transaction.find(query)
         .sort({ date: -1 })
-        .offset(offset)
+        .skip(skip)
         .limit(Number(limit))
+        .populate('category', 'name type')
         .lean();
 
       const stats = {

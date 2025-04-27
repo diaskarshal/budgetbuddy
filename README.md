@@ -30,7 +30,12 @@ npm start
 ## Compromises
 
 ## Errors/bugs
-
+when pressing log out it doesnt transfer to the login page  
+the categories are not listed in the create transaction form  
+the filters on the category side bar are not working  
+the selector of period is working, the amount is not  
+the date in the table should be edited  
+the customs in the amount and frequency filters should be handled  
 ## Technologies
 - **Frontend**: React.js, Bootstrap
 - **Backend**: Node.js, Express.js

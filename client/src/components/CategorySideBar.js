@@ -29,7 +29,7 @@
 import React from "react";
 import { Card, ListGroup } from "react-bootstrap";
 
-const CategorySidebar = ({ categories, onSelect }) => {
+const CategorySidebar = ({ categories = { expense: [], income: [] }, onSelect }) => {
   return (
     <div>
       <Card className="mb-4">
@@ -37,7 +37,7 @@ const CategorySidebar = ({ categories, onSelect }) => {
           Expense
         </Card.Header>
         <ListGroup variant="flush">
-          {categories.expense.map((cat) => (
+          {categories.expense?.map((cat) => (
             <ListGroup.Item
               key={cat.id}
               action
@@ -53,7 +53,7 @@ const CategorySidebar = ({ categories, onSelect }) => {
           Income
         </Card.Header>
         <ListGroup variant="flush">
-          {categories.income.map((cat) => (
+          {categories.income?.map((cat) => (
             <ListGroup.Item
               key={cat.id}
               action
