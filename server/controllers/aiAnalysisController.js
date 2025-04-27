@@ -3,6 +3,12 @@ import Transaction from "../models/transactionModel.js";
 import { HfInference } from "@huggingface/inference";
 
 class AIAnalysisController {
+  constructor() {
+    this.analyzeFinances = this.analyzeFinances.bind(this);
+    this.calculateStats = this.calculateStats.bind(this);
+    this.createPrompt = this.createPrompt.bind(this);
+  }
+
   async analyzeFinances(req, res, next) {
     try {
       const userId = req.user._id;
@@ -12,7 +18,7 @@ class AIAnalysisController {
       const prompt = this.createPrompt(stats, question);
       const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
       const response = await hf.textGeneration({
-        model: "mistralai/Mistral-7B-Instruct-v0.2",
+        model: "gpt2",
         inputs: prompt,
         parameters: {
           max_new_tokens: 250,
@@ -78,7 +84,7 @@ class AIAnalysisController {
       question ||
       "Analyze this financial situation and provide budget optimization advice."
     }
-      Provide a concise, actionable analysis.`;
+      Provide a concise analysis.`;
   }
 }
 

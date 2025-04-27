@@ -53,6 +53,6 @@ pagination
 ## Technologies
 - **Frontend**: React.js, Bootstrap
 - **Backend**: Node.js, Express.js
-- **Other**: MongoDB, Hugging Face: Mistral-7B-Instruct-v0.2
+- **Other**: MongoDB, Hugging Face: gpt2
 
 This tech stack was used for its popularity and diversity. Everything is written in JavaScript, so it provides a better understanding in the development process.

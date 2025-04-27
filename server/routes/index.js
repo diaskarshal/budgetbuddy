@@ -11,6 +11,6 @@ router.use("/user", userRouter);
 router.use("/categories", categoryRouter);
 router.use("/ai", aiRouter);
 
-console.log("All routes registered, including AI router"); // Add this log
+// console.log("All routes registered");
 
 export default router;
