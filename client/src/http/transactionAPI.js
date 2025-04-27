@@ -1,43 +1,28 @@
-import { $authHost, $host } from "./index";
-
-export const createType = async (type) => {
-  const { data } = await $authHost.post("api/type", type);
-  return data;
-};
+import { $authHost } from "./index";
 
 export const fetchTypes = async () => {
-  const { data } = await $host.get("api/type");
+  const { data } = await $authHost.get("api/");
   return data;
 };
 
-export const createBrand = async (brand) => {
-  const { data } = await $authHost.post("api/brand", brand);
+export const fetchCategories = async () => {
+  const { data } = await $authHost.get("api/brand");
   return data;
 };
 
-export const fetchBrands = async () => {
-  const { data } = await $host.get("api/brand");
+export const createTransaction = async (transaction) => {
+  const { data } = await $authHost.post("api/transaction", transaction);
   return data;
 };
 
-export const createDevice = async (device) => {
-  const { data } = await $authHost.post("api/device", device);
-  return data;
-};
-
-export const fetchDevices = async (typeId, brandId, page, limit = 5) => {
-  const { data } = await $host.get("api/device", {
-    params: {
-      typeId,
-      brandId,
-      page,
-      limit,
-    },
+export const fetchTransactions = async () => {
+  const { data } = await $authHost.get("api/transaction", {
+    params: {},
   });
   return data;
 };
 
-export const fetchOneDevice = async (id) => {
-  const { data } = await $host.get("api/device/" + id);
-  return data;
-};
+// export const fetchOneDevice = async (id) => {
+//   const { data } = await $authHost.get("api/device/" + id);
+//   return data;
+// };
