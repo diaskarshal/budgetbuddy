@@ -1,23 +1,3 @@
-// // need to do 1 transaction per 1 line
-// import React, { useContext } from "react";
-// import { observer } from "mobx-react-lite";
-// import { Context } from "../index";
-// import { Row } from "react-bootstrap";
-// import TransactionItem from "./TransactionItem";
-
-// const TransactionList = observer(() => {
-//   const { transaction } = useContext(Context);
-
-//   return (
-//     <Row className="d-flex">
-//       {transaction.devices.map((transaction) => (
-//         <TransactionItem key={transaction.id} transaction={transaction} />
-//       ))}
-//     </Row>
-//   );
-// });
-
-// export default TransactionList;
 import React from "react";
 import { Table, Button } from "react-bootstrap";
 import { Pencil, X } from "react-bootstrap-icons";
@@ -44,7 +24,7 @@ const TransactionTable = ({ transactions, onEdit, onDelete }) => {
           </tr>
         ) : (
           transactions.map((tx) => (
-            <tr key={tx.id}>
+            <tr key={tx._id}>
               <td>{tx.name}</td>
               <td>{tx.amount}</td>
               <td>{tx.date}</td>
@@ -57,7 +37,7 @@ const TransactionTable = ({ transactions, onEdit, onDelete }) => {
                 <Button
                   variant="link"
                   size="sm"
-                  onClick={() => onDelete(tx.id)}
+                  onClick={() => onDelete(tx._id)}
                   style={{ color: "red" }}
                 >
                   <X />

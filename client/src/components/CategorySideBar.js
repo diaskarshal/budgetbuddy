@@ -1,31 +1,3 @@
-// // need to do frequency
-// import React, { useContext } from "react";
-// import { observer } from "mobx-react-lite";
-// import { Context } from "../index";
-// import { Card, Row, Col } from "react-bootstrap";
-
-// const CategoryBar = observer(() => {
-//   const { transaction } = useContext(Context);
-
-//   return (
-//     <Row className="d-flex flex-wrap">
-//       {transaction.categories.map((category) => (
-//         <Col xs="auto" key={transaction.id}>
-//           <Card
-//             style={{ cursor: "pointer" }}
-//             className="p-3"
-//             onClick={() => transaction.setSelectedCategory(category)}
-//             border={brand.id === transaction.selectedCategory.id ? "danger" : "light"}
-//           >
-//             {category.name}
-//           </Card>
-//         </Col>
-//       ))}
-//     </Row>
-//   );
-// });
-
-// export default CategoryBar;
 import React from "react";
 import { Card, ListGroup } from "react-bootstrap";
 

@@ -1,25 +1,43 @@
 import { $authHost } from "./index";
 
 export const fetchTypes = async () => {
-  const { data } = await $authHost.get("api/");
-  return data;
+  try {
+    const { data } = await $authHost.get("transaction/types");
+    return data;
+  } catch (error) {
+    console.error('Error fetching types:', error);
+    throw error;
+  }
 };
 
 export const fetchCategories = async () => {
-  const { data } = await $authHost.get("api/brand");
-  return data;
+  try {
+    const { data } = await $authHost.get("category");
+    return data;
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    throw error;
+  }
 };
 
 export const createTransaction = async (transaction) => {
-  const { data } = await $authHost.post("api/transaction", transaction);
-  return data;
+  try {
+    const { data } = await $authHost.post("transaction", transaction);
+    return data;
+  } catch (error) {
+    console.error('Error creating transaction:', error);
+    throw error;
+  }
 };
 
 export const fetchTransactions = async () => {
-  const { data } = await $authHost.get("api/transaction", {
-    params: {},
-  });
-  return data;
+  try {
+    const { data } = await $authHost.get("transaction");
+    return data;
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    throw error;
+  }
 };
 
 // export const fetchOneDevice = async (id) => {

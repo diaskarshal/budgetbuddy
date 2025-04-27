@@ -1,58 +1,3 @@
-// // to do
-// import React, { useContext, useEffect } from "react";
-// import { Container } from "react-bootstrap";
-// import Row from "react-bootstrap/Row";
-// import Col from "react-bootstrap/Col";
-// import TypeBar from "../components/TypeBar";
-// import CategoryBar from "../components/CategoryBar";
-// import TransactionList from "../components/TransactionList";
-// import { observer } from "mobx-react-lite";
-// import { Context } from "../index";
-// import { fetchCategories, fetchTransactions, fetchTypes } from "../http/transactionAPI";
-// import Pages from "../components/Pages";
-
-// const Main = observer(() => {
-//   const { transaction } = useContext(Context);
-
-//   useEffect(() => {
-//     fetchTypes().then((data) => transaction.setTypes(data));
-//     fetchCategories().then((data) => transaction.setBrands(data));
-//     fetchTransactions(null, null, 1, 2).then((data) => {
-//       transaction.setTransactions(data.rows);
-//       transaction.setTotalCount(data.count);
-//     });
-//   }, []);
-
-//   useEffect(() => {
-//     fetchTransactions(
-//       transaction.selectedType.id,
-//       transaction.selectedCategory.id,
-//       transaction.page,
-//       12
-//     ).then((data) => {
-//       transaction.setTransactions(data.rows);
-//       transaction.setTotalCount(data.count);
-//     });
-//   }, [transaction.page, transaction.selectedType, transaction.selectedCategory]);
-
-//   return (
-//     <Container>
-//       <Row className="mt-2">
-//         <Col md={3}>
-//           <TypeBar />
-//         </Col>
-//         <Col md={9}>
-//           <CategoryBar />
-//           <TransactionList />
-//           <Pages />
-//         </Col>
-//       </Row>
-//     </Container>
-//   );
-// });
-
-// export default Main;
-
 import React, { useEffect, useState, useCallback } from "react";
 import { $authHost } from "../http/index";
 import CategorySidebar from "../components/CategorySideBar";
@@ -63,10 +8,11 @@ import TransactionForm from "../components/modals/TransactionForm";
 import { Container, Row, Col } from "react-bootstrap";
 
 const MainPage = () => {
-  const [categories, setCategories] = useState({ expense: [], income: [] });
+  const [categories, setCategories] = useState({ income: [], expense: [] });
   const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
-    frequency: "month",
+    frequency: "",
     amount: "",
     category: "",
     customDate: null,
@@ -75,18 +21,32 @@ const MainPage = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showForm, setShowForm] = useState(false);
+  const [addTransaction, setAddTransaction] = useState(null);
   const [editTransaction, setEditTransaction] = useState(null);
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
 
   const fetchCategories = useCallback(async () => {
     try {
+      setLoading(true);
       const { data } = await $authHost.get("api/categories/");
-      setCategories({
-        expense: data.filter((c) => c.type === "expense"),
-        income: data.filter((c) => c.type === "income"),
-      });
+      const formattedData = {
+        expense: Array.isArray(data.expense)
+          ? data.expense
+          : data.filter((c) => c.type === "expense"),
+        income: Array.isArray(data.income)
+          ? data.income
+          : data.filter((c) => c.type === "income"),
+      };
+      setCategories(formattedData);
+      setCategoriesLoaded(true);
     } catch (error) {
       console.error("Error fetching categories:", error);
-      setCategories({ expense: [], income: [] });
+      if (error.response?.status === 401) {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -99,12 +59,14 @@ const MainPage = () => {
   }, [filters, page]);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      window.location.href = "/login";
+      return;
+    }
     fetchCategories();
-  }, [fetchCategories]);
-
-  useEffect(() => {
     fetchTransactions();
-  }, [fetchTransactions]);
+  }, [fetchCategories]);
 
   const handleFilterChange = (newFilters) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
@@ -117,6 +79,10 @@ const MainPage = () => {
   };
 
   const handleAddTransaction = () => {
+    if (!categoriesLoaded) {
+      alert("Categories are still loading. Please wait...");
+      return;
+    }
     setEditTransaction(null);
     setShowForm(true);
   };
@@ -126,14 +92,14 @@ const MainPage = () => {
     setShowForm(true);
   };
 
-  const handleDeleteTransaction = async (id) => {
-    await $authHost.delete(`api/transaction/${id}`);
+  const handleDeleteTransaction = async (_id) => {
+    await $authHost.delete(`api/transaction/${_id}`);
     fetchTransactions();
   };
 
   const handleFormSubmit = async (data) => {
     if (editTransaction) {
-      await $authHost.put(`api/transaction/${editTransaction.id}`, data);
+      await $authHost.put(`api/transaction/${editTransaction._id}`, data);
     } else {
       await $authHost.post("api/transaction", data);
     }
@@ -165,6 +131,7 @@ const MainPage = () => {
         </Col>
       </Row>
       <TransactionForm
+        key={editTransaction ? `edit-${editTransaction._id}` : "add"}
         show={showForm}
         onHide={() => setShowForm(false)}
         onSubmit={handleFormSubmit}

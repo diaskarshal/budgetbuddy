@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { observer } from "mobx-react-lite";
 import { authRoutes, publicRoutes } from "../routes";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { MAIN_ROUTE, LOGIN_ROUTE } from "../utils/consts";
@@ -28,4 +29,4 @@ const AppRouter = () => {
   );
 };
 
-export default AppRouter;
+export default observer(AppRouter);

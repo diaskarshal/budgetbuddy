@@ -5,7 +5,7 @@ const TransactionForm = ({
   show,
   onHide,
   onSubmit,
-  categories,
+  categories = { expense: [], income: [] },
   editTransaction,
 }) => {
   const [form, setForm] = useState({
@@ -51,9 +51,31 @@ const TransactionForm = ({
 
   const categoryList =
     form.type === "expense"
-      ? categories?.expense || []
-      : categories?.income || [];
+      ? categories.expense || []
+      : categories.income || [];
 
+  console.log("Form type:", form.type);
+  console.log("Available categories:", categoryList);
+  if (
+    show &&
+    categories.expense.length === 0 &&
+    categories.income.length === 0
+  ) {
+    return (
+      <Modal show={show} onHide={onHide}>
+        <Modal.Header closeButton>
+          <Modal.Title>Loading Categories...</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="text-center">
+            <div className="spinner-border" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
+    );
+  }
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
@@ -115,9 +137,7 @@ const TransactionForm = ({
             >
               <option value="">Select category</option>
               {categoryList.map((cat) => (
-                <option key={cat.id} value={cat.name}>
-                  {cat.name}
-                </option>
+                <option value={cat.name}>{cat.name}</option>
               ))}
             </Form.Select>
           </Form.Group>
