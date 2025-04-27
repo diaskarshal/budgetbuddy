@@ -10,7 +10,7 @@ export const registration = async (email, password) => {
     localStorage.setItem("token", data.token);
     return jwtDecode(data.token);
   } catch (error) {
-    console.error('Error during registration:', error);
+    console.error("Error during registration:", error);
     throw error;
   }
 };
@@ -21,7 +21,7 @@ export const login = async (email, password) => {
     localStorage.setItem("token", data.token);
     return jwtDecode(data.token);
   } catch (error) {
-    console.error('Error during login:', error);
+    console.error("Error during login:", error);
     throw error;
   }
 };
@@ -32,7 +32,7 @@ export const check = async () => {
     localStorage.setItem("token", data.token);
     return jwtDecode(data.token);
   } catch (error) {
-    console.error('Error checking auth:', error);
+    console.error("Error checking auth:", error);
     throw error;
   }
 };

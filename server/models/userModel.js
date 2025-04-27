@@ -9,17 +9,19 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
-      validate: [validator.isEmail, 'Please, provide a valid email'],
+      validate: [validator.isEmail, "Please, provide a valid email"],
     },
     password: {
       type: String,
       required: [true, "Please, write your password."],
     },
-    transactions: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Transaction",
-      default: []
-    }],
+    transactions: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Transaction",
+        default: [],
+      },
+    ],
   },
   {
     timestamps: true,

@@ -21,7 +21,7 @@ app.get("/", (req, res) => {
 
 const seedCategories = async () => {
   const count = await Category.countDocuments();
-  if (count === 0) {
+  if (count === 0) {// was used in the process of dealing with the issues of loading of categories
     console.log("Seeding default categories...");
     const defaultCategories = [
       { categoryName: "food", type: "expense" },
@@ -40,11 +40,10 @@ const seedCategories = async () => {
   }
 };
 
-// Call this after DB connection
 const start = async () => {
   try {
     await connectDB();
-    await seedCategories(); // Add this line
+    await seedCategories();
     app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
   } catch (e) {
     console.error("MongoDB connection failed:", e);

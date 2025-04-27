@@ -7,6 +7,7 @@ import { fetchStats } from "../http/statsAPI";
 import { $authHost } from "../http/index";
 import { Spinner } from "react-bootstrap";
 import TransactionForm from "../components/modals/TransactionForm";
+import AIAnalysis from "../components/AIAnalysis";
 
 const Stats = () => {
   const [stats, setStats] = useState(null);
@@ -35,7 +36,7 @@ const Stats = () => {
         setCategories(formattedData);
 
         const mapping = {};
-        data.forEach(cat => {
+        data.forEach((cat) => {
           mapping[cat.categoryName] = cat.type;
         });
         setCategoryMap(mapping);
@@ -78,8 +79,8 @@ const Stats = () => {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetchStats().then(data => setStats(data.stats)),
-      fetchCategories()
+      fetchStats().then((data) => setStats(data.stats)),
+      fetchCategories(),
     ]).finally(() => setLoading(false));
   }, [fetchCategories]);
 
@@ -99,14 +100,14 @@ const Stats = () => {
     : 0;
 
   const incomeCategories = Object.entries(stats.byCategory)
-    .filter(([k, _]) => categoryMap[k] === 'income')
+    .filter(([k, _]) => categoryMap[k] === "income")
     .map(([k, v]) => ({
       categoryName: k,
       percent: normalizePercent((v.total / stats.income) * 100),
     }));
 
   const expenseCategories = Object.entries(stats.byCategory)
-    .filter(([k, _]) => categoryMap[k] === 'expense')
+    .filter(([k, _]) => categoryMap[k] === "expense")
     .map(([k, v]) => ({
       categoryName: k,
       percent: normalizePercent((Math.abs(v.total) / stats.expense) * 100),
@@ -187,6 +188,9 @@ const Stats = () => {
                 )}
               </Card.Body>
             </Card>
+          </Col>
+          <Col md={12}>
+            <AIAnalysis />
           </Col>
         </Row>
       </Container>

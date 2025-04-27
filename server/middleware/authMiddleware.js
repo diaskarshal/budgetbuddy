@@ -17,7 +17,7 @@ export default async function (req, res, next) {
     }
 
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
-    
+
     const user = await User.findById(decoded.id);
     if (!user) {
       return res.status(401).json({ message: "User not found." });
@@ -25,9 +25,9 @@ export default async function (req, res, next) {
 
     req.user = {
       _id: user._id,
-      email: user.email
+      email: user.email,
     };
-    
+
     next();
   } catch (e) {
     return res.status(401).json({ message: "Not authenticated." });

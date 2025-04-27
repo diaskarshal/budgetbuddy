@@ -22,7 +22,10 @@ router.post("/", async (req, res, next) => {
     if (!categoryName || !type) {
       return next(ApiError.badRequest("Category name and type are required"));
     }
-    const category = await Category.create({ categoryName: categoryName, type });
+    const category = await Category.create({
+      categoryName: categoryName,
+      type,
+    });
     return res.json(category);
   } catch (e) {
     next(ApiError.badRequest(e.message));

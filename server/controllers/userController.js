@@ -23,12 +23,12 @@ class UserController {
     const user = await User.create({ email, password: hashPassword });
     const token = generateJwt(user._id, user.email);
 
-    return res.json({ 
+    return res.json({
       token,
       user: {
         id: user._id,
-        email: user.email
-      }
+        email: user.email,
+      },
     });
   }
 
@@ -56,7 +56,7 @@ class UserController {
 
   async getCurrentUser(req, res, next) {
     try {
-      const user = await User.findById(req.user._id).select('-password');
+      const user = await User.findById(req.user._id).select("-password");
       if (!user) {
         return next(ApiError.badRequest("User not found"));
       }
@@ -65,7 +65,7 @@ class UserController {
         user: {
           id: user._id,
           email: user.email,
-        }
+        },
       });
     } catch (e) {
       next(ApiError.badRequest(e.message));
