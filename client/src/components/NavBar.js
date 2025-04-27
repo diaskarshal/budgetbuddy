@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { Context } from "../index";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
@@ -7,23 +7,16 @@ import { MAIN_ROUTE, STATS_ROUTE, LOGIN_ROUTE } from "../utils/consts";
 import { Button } from "react-bootstrap";
 import { observer } from "mobx-react-lite";
 import Container from "react-bootstrap/Container";
-import TransactionForm from "./modals/TransactionForm";
 
-const NavBar = observer(({ onAdd, categories, onSubmit }) => {
+const NavBar = observer(({ onAddClick }) => {
   const { user } = useContext(Context);
   const navigate = useNavigate();
-  const [transactionVisible, setTransactionVisible] = useState(false);
 
   const logOut = () => {
     user.setUser({});
     user.setIsAuth(false);
     localStorage.removeItem("token");
     navigate(LOGIN_ROUTE);
-  };
-
-  const handleAddClick = () => {
-    setTransactionVisible(true);
-    onAdd?.();
   };
 
   return (
@@ -36,7 +29,7 @@ const NavBar = observer(({ onAdd, categories, onSubmit }) => {
           <Nav className="ml-auto" style={{ color: "white" }}>
             <Button
               variant="outline-light"
-              onClick={handleAddClick}
+              onClick={onAddClick}
               className="ms-2"
             >
               Add transaction
@@ -51,12 +44,6 @@ const NavBar = observer(({ onAdd, categories, onSubmit }) => {
             <Button variant="outline-light" onClick={logOut} className="ms-2">
               Log out
             </Button>
-            <TransactionForm
-              show={transactionVisible}
-              onHide={() => setTransactionVisible(false)}
-              onSubmit={onSubmit}
-              categories={categories}
-            />
           </Nav>
         )}
       </Container>

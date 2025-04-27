@@ -27,10 +27,12 @@ const Stats = () => {
     ? (stats.expense / turnover) * 100
     : 0;
 
-  // Prepare category data
   const incomeCategories = Object.entries(stats.byCategory)
     .filter(([_, v]) => v.total > 0)
-    .map(([k, v]) => ({ categoryName: k, percent: (v.total / stats.income) * 100 }));
+    .map(([k, v]) => ({
+      categoryName: k,
+      percent: (v.total / stats.income) * 100,
+    }));
 
   const expenseCategories = Object.entries(stats.byCategory)
     .filter(([_, v]) => v.total < 0)

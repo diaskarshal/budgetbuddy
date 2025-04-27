@@ -18,7 +18,7 @@ npm install
 ```
 3. Create .env file in: server folder and add  
 PORT=5000  
-MONGO_URL=""  
+MONGO_URL="your connection string from mongodb atlas"  
 SECRET_KEY=  
 in client folder and add  
 REACT_APP_API_URL=http://localhost:5000  
@@ -45,14 +45,13 @@ npm start
 ## Methodology
 
 ## Compromises
-
+1. The navbar logic was moved to client/src/pages/Main.js due to an issue in displaying categories in the add transaction modal. 
+2. The category values were hardcoded. The future improvements will be aimed to fix it.
 ## Errors/bugs
-the categories are not listed in the create transaction form, yet they are in the update form 
+the categories are not listed in the create transaction form and in the update form(blank) 
 the filters on the category side bar are not working  
-the selectors of period and amount are not working  
-the date in the table should be edited in a year-month-dateThour:minute:second, leaving .millisecondZ  
-setting the custom data in the amount and frequency filters should be handled  
-the selector of time period is not refreshed after logging out, it keeps the same setting and cannot be changed to the default
+the selector of amount is not working  
+setting the custom data in the amount and frequency filters are not implemented yet  
 error in updating the transaction
 ## Technologies
 - **Frontend**: React.js, Bootstrap

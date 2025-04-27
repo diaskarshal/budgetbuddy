@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState, useCallback } from "react";
 import { Context } from "../index";
 import { $authHost } from "../http/index";
+import NavBar from "../components/NavBar";
 import CategorySidebar from "../components/CategorySideBar";
 import FilterBar from "../components/FilterBar";
 import TransactionTable from "../components/TransactionTable";
@@ -23,26 +24,31 @@ const MainPage = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showForm, setShowForm] = useState(false);
-  const [addTransaction, setAddTransaction] = useState(null);
   const [editTransaction, setEditTransaction] = useState(null);
   const [categoriesLoaded, setCategoriesLoaded] = useState(false);
 
   const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
-      const { data } = await $authHost.get("api/categories/");
-      const formattedData = {
-        expense: Array.isArray(data.expense)
-          ? data.expense
-          : data.filter((c) => c.type === "expense"),
-        income: Array.isArray(data.income)
-          ? data.income
-          : data.filter((c) => c.type === "income"),
-      };
-      setCategories(formattedData);
+      const { data } = await $authHost.get("api/categories");
+
+      if (!data || data.length === 0) {
+        setCategories({ expense: [], income: [] });
+      } else if (Array.isArray(data)) {
+        const formattedData = {
+          expense: data.filter((c) => c.type === "expense"),
+          income: data.filter((c) => c.type === "income"),
+        };
+        setCategories(formattedData);
+      } else {
+        setCategories(data);
+      }
       setCategoriesLoaded(true);
     } catch (error) {
       console.error("Error fetching categories:", error);
+      setCategories({ expense: [], income: [] });
+      setCategoriesLoaded(true);
+
       if (error.response?.status === 401) {
         localStorage.removeItem("token");
         window.location.href = "/login";
@@ -60,7 +66,7 @@ const MainPage = () => {
           page: transaction.page,
           limit: transaction.limit,
           ...(filters.customDate && {
-            startDate: filters.customDate.from, 
+            startDate: filters.customDate.from,
             endDate: filters.customDate.to,
           }),
           ...(filters.customAmount && {
@@ -74,7 +80,7 @@ const MainPage = () => {
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
-  }, [filters, page]);
+  }, [filters, page, transaction]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -96,13 +102,16 @@ const MainPage = () => {
     setPage(1);
   };
 
-  const handleAddTransaction = () => {
+  const handleNavBarAddClick = () => {
     if (!categoriesLoaded) {
-      alert("Categories are still loading. Please wait...");
-      return;
+      fetchCategories().then(() => {
+        setEditTransaction(null);
+        setShowForm(true);
+      });
+    } else {
+      setEditTransaction(null);
+      setShowForm(true);
     }
-    setEditTransaction(null);
-    setShowForm(true);
   };
 
   const handleEditTransaction = (transaction) => {
@@ -116,47 +125,61 @@ const MainPage = () => {
   };
 
   const handleFormSubmit = async (data) => {
-    if (editTransaction) {
-      await $authHost.put(`api/transaction/${editTransaction._id}`, data);
-    } else {
-      await $authHost.post("api/transaction", data);
+    try {
+      if (editTransaction) {
+        await $authHost.put(`api/transaction/${editTransaction._id}`, data);
+      } else {
+        await $authHost.post("api/transaction", data);
+      }
+      setShowForm(false);
+      fetchTransactions();
+    } catch (error) {
+      console.error("Error submitting transaction:", error);
+      alert("Error saving transaction. Please try again.");
     }
-    setShowForm(false);
-    fetchTransactions();
   };
 
   return (
-    <Container fluid className="mt-4">
-      <Row>
-        <Col md={2}>
-          <CategorySidebar
-            categories={categories}
-            onSelect={handleCategorySelect}
-          />
-        </Col>
-        <Col md={10}>
-          <FilterBar filters={filters} onChange={handleFilterChange} />
-          <TransactionTable
-            transactions={transactions}
-            onEdit={handleEditTransaction}
-            onDelete={handleDeleteTransaction}
-          />
-          <PaginationBar
-            page={page}
-            totalPages={totalPages}
-            onPageChange={setPage}
-          />
-        </Col>
-      </Row>
-      <TransactionForm
-        key={editTransaction ? `edit-${editTransaction._id}` : "add"}
-        show={showForm}
-        onHide={() => setShowForm(false)}
-        onSubmit={handleFormSubmit}
+    <>
+      <NavBar
+        onAddClick={handleNavBarAddClick}
         categories={categories}
-        editTransaction={editTransaction}
+        onSubmit={handleFormSubmit}
       />
-    </Container>
+
+      <Container fluid className="mt-4">
+        <Row>
+          <Col md={2}>
+            <CategorySidebar
+              categories={categories}
+              onSelect={handleCategorySelect}
+            />
+          </Col>
+          <Col md={10}>
+            <FilterBar filters={filters} onChange={handleFilterChange} />
+            <TransactionTable
+              transactions={transactions}
+              onEdit={handleEditTransaction}
+              onDelete={handleDeleteTransaction}
+            />
+            <PaginationBar
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
+          </Col>
+        </Row>
+
+        <TransactionForm
+          key={editTransaction ? `edit-${editTransaction._id}` : "add"}
+          show={showForm}
+          onHide={() => setShowForm(false)}
+          onSubmit={handleFormSubmit}
+          categories={categories}
+          editTransaction={editTransaction}
+        />
+      </Container>
+    </>
   );
 };
 
