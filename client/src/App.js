@@ -23,7 +23,7 @@ const App = observer(() => {
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   if (loading) {
     return <Spinner animation={"grow"} />;

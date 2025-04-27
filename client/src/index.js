@@ -1,8 +1,8 @@
 import React, { createContext } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import UserMain from "./store/UserMain";
-import TransactionMain from "./store/TransactionMain";
+import UserMain from "./main/UserMain";
+import TransactionMain from "./main/TransactionMain";
 
 export const Context = createContext(null);
 

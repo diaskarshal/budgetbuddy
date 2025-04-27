@@ -53,14 +53,14 @@
 
 // export default Main;
 
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import TopBar from "./components/TopBar";
-import CategorySidebar from "./components/CategorySidebar";
-import FilterBar from "./components/FilterBar";
-import TransactionTable from "./components/TransactionTable";
-import PaginationBar from "./components/PaginationBar";
-import TransactionForm from "./components/TransactionForm";
+import React, { useEffect, useState, useCallback } from "react";
+import { $authHost } from "../http/index";
+import TopBar from "../components/NavBar";
+import CategorySidebar from "../components/CategorySideBar";
+import FilterBar from "../components/FilterBar";
+import TransactionTable from "../components/TransactionTable";
+import PaginationBar from "../components/PaginationBar";
+import TransactionForm from "../components/modals/TransactionForm";
 import { Container, Row, Col } from "react-bootstrap";
 
 const MainPage = () => {
@@ -78,29 +78,29 @@ const MainPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editTransaction, setEditTransaction] = useState(null);
 
+  const fetchCategories = useCallback(async () => {
+    const { data } = await $authHost.get("api/categories");
+    setCategories({
+      expense: data.filter((c) => c.type === "expense"),
+      income: data.filter((c) => c.type === "income"),
+    });
+  }, []);
+
+  const fetchTransactions = useCallback(async () => {
+    const { data } = await $authHost.get("api/transaction", {
+      params: { ...filters, page },
+    });
+    setTransactions(data.transactions);
+    setTotalPages(data.pagination.totalPages);
+  }, [filters, page]);
+
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
   useEffect(() => {
     fetchTransactions();
-  }, [filters, page]);
-
-  const fetchCategories = async () => {
-    const res = await axios.get("/api/categories");
-    setCategories({
-      expense: res.data.filter((c) => c.type === "expense"),
-      income: res.data.filter((c) => c.type === "income"),
-    });
-  };
-
-  const fetchTransactions = async () => {
-    const res = await axios.get("/api/transactions", {
-      params: { ...filters, page },
-    });
-    setTransactions(res.data.transactions);
-    setTotalPages(res.data.totalPages);
-  };
+  }, [fetchTransactions]);
 
   const handleFilterChange = (newFilters) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
@@ -123,15 +123,15 @@ const MainPage = () => {
   };
 
   const handleDeleteTransaction = async (id) => {
-    await axios.delete(`/api/transactions/${id}`);
+    await $authHost.delete(`api/transaction/${id}`);
     fetchTransactions();
   };
 
   const handleFormSubmit = async (data) => {
     if (editTransaction) {
-      await axios.put(`/api/transactions/${editTransaction.id}`, data);
+      await $authHost.put(`api/transaction/${editTransaction.id}`, data);
     } else {
-      await axios.post("/api/transactions", data);
+      await $authHost.post("api/transaction", data);
     }
     setShowForm(false);
     fetchTransactions();
@@ -139,7 +139,11 @@ const MainPage = () => {
 
   return (
     <Container fluid>
-      <TopBar onAdd={handleAddTransaction} />
+      <TopBar
+        onAdd={handleAddTransaction}
+        categories={categories}
+        onSubmit={handleFormSubmit}
+      />
       <Row>
         <Col md={2}>
           <CategorySidebar
