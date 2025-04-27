@@ -160,24 +160,24 @@ class TransactionController {
     }
   }
 
-  async getOne(req, res, next) {
-    try {
-      const { id } = req.params;
-      const userId = req.user._id;
+  // async getOne(req, res, next) {
+  //   try {
+  //     const { id } = req.params;
+  //     const userId = req.user._id;
 
-      const transaction = await Transaction.findOne({ _id: id, user: userId });
-      if (!transaction) {
-        return next(ApiError.badRequest("No such transaction."));
-      }
+  //     const transaction = await Transaction.findOne({ _id: id, user: userId });
+  //     if (!transaction) {
+  //       return next(ApiError.badRequest("No such transaction."));
+  //     }
 
-      return res.status(200).json({
-        success: true,
-        transaction,
-      });
-    } catch (e) {
-      next(ApiError.badRequest(e.message));
-    }
-  }
+  //     return res.status(200).json({
+  //       success: true,
+  //       transaction,
+  //     });
+  //   } catch (e) {
+  //     next(ApiError.badRequest(e.message));
+  //   }
+  // }
 
   async update(req, res, next) {
     try {
