@@ -13,9 +13,9 @@ const CategorySidebar = ({ categories = { expense: [], income: [] }, onSelect })
             <ListGroup.Item
               key={cat.id}
               action
-              onClick={() => onSelect(cat.name)}
+              onClick={() => onSelect(cat.categoryName)}
             >
-              {cat.name}
+              {cat.categoryName}
             </ListGroup.Item>
           ))}
         </ListGroup>
@@ -29,9 +29,9 @@ const CategorySidebar = ({ categories = { expense: [], income: [] }, onSelect })
             <ListGroup.Item
               key={cat.id}
               action
-              onClick={() => onSelect(cat.name)}
+              onClick={() => onSelect(cat.categoryName)}
             >
-              {cat.name}
+              {cat.categoryName}
             </ListGroup.Item>
           ))}
         </ListGroup>

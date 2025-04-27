@@ -18,15 +18,15 @@ router.get("/", async (req, res, next) => {
 
 router.post("/", async (req, res, next) => {
   try {
-    const { name, type } = req.body;
-    if (!name || !type) {
-      return next(ApiError.badRequest("Name and type are required"));
+    const { categoryName, type } = req.body;
+    if (!categoryName || !type) {
+      return next(ApiError.badRequest("Category name and type are required"));
     }
-    const category = await Category.create({ name, type });
+    const category = await Category.create({ categoryName: categoryName, type });
     return res.json(category);
   } catch (e) {
     next(ApiError.badRequest(e.message));
   }
 });
 
-export default router; 
+export default router;

@@ -3,6 +3,7 @@ import { Container, Row, Col, Card } from "react-bootstrap";
 import CircularProgressBar from "../components/statsBar/CircularProgressBar";
 import LineProgressBar from "../components/statsBar/LineProgressBar";
 import { fetchStats } from "../http/statsAPI";
+import { Spinner } from "react-bootstrap";
 
 const Stats = () => {
   const [stats, setStats] = useState(null);
@@ -11,7 +12,7 @@ const Stats = () => {
     fetchStats().then((data) => setStats(data.stats));
   }, []);
 
-  if (!stats) return <div>Loading...</div>;
+  if (!stats) return <Spinner animation={"grow"} />;
 
   const totalTransactions = stats.byType.income + stats.byType.expense;
   const incomePercent = totalTransactions
@@ -29,12 +30,12 @@ const Stats = () => {
   // Prepare category data
   const incomeCategories = Object.entries(stats.byCategory)
     .filter(([_, v]) => v.total > 0)
-    .map(([k, v]) => ({ name: k, percent: (v.total / stats.income) * 100 }));
+    .map(([k, v]) => ({ categoryName: k, percent: (v.total / stats.income) * 100 }));
 
   const expenseCategories = Object.entries(stats.byCategory)
     .filter(([_, v]) => v.total < 0)
     .map(([k, v]) => ({
-      name: k,
+      categoryName: k,
       percent: (Math.abs(v.total) / stats.expense) * 100,
     }));
 
@@ -54,7 +55,7 @@ const Stats = () => {
         </Col>
         <Col md={3}>
           <Card>
-            <Card.Header>Total TurnOver: {turnover}</Card.Header>
+            <Card.Header>Total: {turnover}</Card.Header>
             <Card.Body>
               <div>Income: {stats.income}</div>
               <div>Expense: {stats.expense}</div>
@@ -71,12 +72,12 @@ const Stats = () => {
         </Col>
         <Col md={3}>
           <Card>
-            <Card.Header>Categorywise Income</Card.Header>
+            <Card.Header>Income by category</Card.Header>
             <Card.Body>
               {incomeCategories.map((cat) => (
                 <LineProgressBar
-                  key={cat.name}
-                  label={cat.name}
+                  key={cat.categoryName}
+                  label={cat.categoryName}
                   percentage={cat.percent}
                   lineColor="green"
                 />
@@ -86,12 +87,12 @@ const Stats = () => {
         </Col>
         <Col md={3}>
           <Card>
-            <Card.Header>Categorywise Expense</Card.Header>
+            <Card.Header>Expense by category</Card.Header>
             <Card.Body>
               {expenseCategories.map((cat) => (
                 <LineProgressBar
-                  key={cat.name}
-                  label={cat.name}
+                  key={cat.categoryName}
+                  label={cat.categoryName}
                   percentage={cat.percent}
                   lineColor="red"
                 />

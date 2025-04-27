@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
+import { Context } from "../index";
 import { $authHost } from "../http/index";
 import CategorySidebar from "../components/CategorySideBar";
 import FilterBar from "../components/FilterBar";
@@ -8,6 +9,7 @@ import TransactionForm from "../components/modals/TransactionForm";
 import { Container, Row, Col } from "react-bootstrap";
 
 const MainPage = () => {
+  const { transaction } = useContext(Context);
   const [categories, setCategories] = useState({ income: [], expense: [] });
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,11 +53,27 @@ const MainPage = () => {
   }, []);
 
   const fetchTransactions = useCallback(async () => {
-    const { data } = await $authHost.get("api/transaction", {
-      params: { ...filters, page },
-    });
-    setTransactions(data.transactions);
-    setTotalPages(data.pagination.totalPages);
+    try {
+      const { data } = await $authHost.get("api/transaction", {
+        params: {
+          ...filters,
+          page: transaction.page,
+          limit: transaction.limit,
+          ...(filters.customDate && {
+            startDate: filters.customDate.from, 
+            endDate: filters.customDate.to,
+          }),
+          ...(filters.customAmount && {
+            minAmount: filters.customAmount.min,
+            maxAmount: filters.customAmount.max,
+          }),
+        },
+      });
+      setTransactions(data.transactions);
+      transaction.setTotalCount(data.pagination.total);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    }
   }, [filters, page]);
 
   useEffect(() => {
@@ -66,7 +84,7 @@ const MainPage = () => {
     }
     fetchCategories();
     fetchTransactions();
-  }, [fetchCategories]);
+  }, [fetchCategories, fetchTransactions, transaction.page]);
 
   const handleFilterChange = (newFilters) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));

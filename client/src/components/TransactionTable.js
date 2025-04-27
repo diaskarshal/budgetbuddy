@@ -7,7 +7,7 @@ const TransactionTable = ({ transactions, onEdit, onDelete }) => {
     <Table striped bordered hover>
       <thead>
         <tr>
-          <th>Name</th>
+          <th>Title</th>
           <th>Amount</th>
           <th>Date</th>
           <th>Type</th>
@@ -25,9 +25,9 @@ const TransactionTable = ({ transactions, onEdit, onDelete }) => {
         ) : (
           transactions.map((tx) => (
             <tr key={tx._id}>
-              <td>{tx.name}</td>
+              <td>{tx.title}</td>
               <td>{tx.amount}</td>
-              <td>{tx.date}</td>
+              <td>{new Date(tx.date).toLocaleDateString()}</td>
               <td>{tx.type}</td>
               <td>{tx.category}</td>
               <td>

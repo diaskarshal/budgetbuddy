@@ -9,7 +9,7 @@ const TransactionForm = ({
   editTransaction,
 }) => {
   const [form, setForm] = useState({
-    name: "",
+    title: "",
     amount: "",
     date: "",
     type: "expense",
@@ -19,7 +19,7 @@ const TransactionForm = ({
   useEffect(() => {
     if (editTransaction) {
       setForm({
-        name: editTransaction.name,
+        title: editTransaction.title,
         amount: editTransaction.amount,
         date: editTransaction.date,
         type: editTransaction.type,
@@ -27,7 +27,7 @@ const TransactionForm = ({
       });
     } else {
       setForm({
-        name: "",
+        title: "",
         amount: "",
         date: "",
         type: "expense",
@@ -37,16 +37,22 @@ const TransactionForm = ({
   }, [editTransaction, show]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-    if (name === "type") {
+    const { title, value } = e.target;
+    setForm((prev) => ({ ...prev, [title]: value }));
+    if (title === "type") {
       setForm((prev) => ({ ...prev, category: "" }));
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(form);
+    onSubmit({
+      title: form.title,
+      amount: form.amount,
+      date: form.date,
+      type: form.type,
+      category: form.category
+    });
   };
 
   const categoryList =
@@ -86,10 +92,10 @@ const TransactionForm = ({
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
           <Form.Group className="mb-3">
-            <Form.Label>Name</Form.Label>
+            <Form.Label>Title</Form.Label>
             <Form.Control
-              name="name"
-              value={form.name}
+              title="title"
+              value={form.title}
               onChange={handleChange}
               required
             />
@@ -97,7 +103,7 @@ const TransactionForm = ({
           <Form.Group className="mb-3">
             <Form.Label>Amount</Form.Label>
             <Form.Control
-              name="amount"
+              title="amount"
               type="number"
               value={form.amount}
               onChange={handleChange}
@@ -108,7 +114,7 @@ const TransactionForm = ({
           <Form.Group className="mb-3">
             <Form.Label>Date</Form.Label>
             <Form.Control
-              name="date"
+              title="date"
               type="date"
               value={form.date}
               onChange={handleChange}
@@ -118,7 +124,7 @@ const TransactionForm = ({
           <Form.Group className="mb-3">
             <Form.Label>Type</Form.Label>
             <Form.Select
-              name="type"
+              title="type"
               value={form.type}
               onChange={handleChange}
               required
@@ -130,14 +136,14 @@ const TransactionForm = ({
           <Form.Group className="mb-3">
             <Form.Label>Category</Form.Label>
             <Form.Select
-              name="category"
+              title="category"
               value={form.category}
               onChange={handleChange}
               required
             >
               <option value="">Select category</option>
               {categoryList.map((cat) => (
-                <option value={cat.name}>{cat.name}</option>
+                <option value={cat.title}>{cat.title}</option>
               ))}
             </Form.Select>
           </Form.Group>

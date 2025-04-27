@@ -109,7 +109,6 @@ class TransactionController {
       return res.status(200).json({
         success: true,
         transactions,
-        stats,
         pagination: {
           total,
           page: Number(page),
@@ -186,8 +185,8 @@ class TransactionController {
     }
   }
   async getStats(req, res) {
-    const userId = req.user.id;
-    const transactions = await Transaction.findAll({ where: { userId } });
+    const userId = req.user._id;
+    const transactions = await Transaction.find({ user: userId });
 
     const stats = {
       income: 0,
