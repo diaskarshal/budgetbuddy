@@ -42,17 +42,14 @@ npm start
 9. Code the main, stats, and login pages.
 10. Create the connection with the server.
 
-## Methodology
-
 ## Compromises
-1. The navbar logic was moved to client/src/pages/Main.js due to an issue in displaying categories in the add transaction modal. 
+1. The navbar logic was moved to client/src/pages/Main.js and Stats.js due to an issue in displaying categories in the add transaction form. 
 2. The category values were hardcoded. The future improvements will be aimed to fix it.
 ## Errors/bugs
-the categories are not listed in the create transaction form and in the update form(blank) 
-the filters on the category side bar are not working  
-the selector of amount is not working  
+the filters on the category side bar and top bar are not working  
 setting the custom data in the amount and frequency filters are not implemented yet  
-error in updating the transaction
+pagination
+
 ## Technologies
 - **Frontend**: React.js, Bootstrap
 - **Backend**: Node.js, Express.js

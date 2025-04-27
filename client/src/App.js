@@ -10,7 +10,23 @@ const App = observer(() => {
   const { user } = useContext(Context);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {}, [user]);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      check()
+        .then((data) => {
+          user.setUser(data);
+          user.setIsAuth(true);
+        })
+        .catch((error) => {
+          console.error("Authentication error:", error);
+          localStorage.removeItem("token");
+        })
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, [user]);
 
   if (loading) {
     return <Spinner animation={"grow"} />;

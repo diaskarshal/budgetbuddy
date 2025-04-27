@@ -1,7 +1,10 @@
 import React from "react";
 import { Card, ListGroup } from "react-bootstrap";
 
-const CategorySidebar = ({ categories = { expense: [], income: [] }, onSelect }) => {
+const CategorySidebar = ({
+  categories = { expense: [], income: [] },
+  onSelect,
+}) => {
   return (
     <div>
       <Card className="mb-4">
