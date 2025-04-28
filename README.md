@@ -65,6 +65,8 @@ The application should now be running on http://localhost:3000
 2. Setting the custom data in the amount and frequency filters are not implemented yet  
 3. Pagination
 
+Note: I used VPN connection to solve the: "MongoDB connection failed: MongooseServerSelectionError: Could not connect to any servers in your MongoDB Atlas cluster."
+
 ## Technologies
 - **Frontend**: React.js, React Bootstrap, Mobx, Axios
 - **Backend**: Node.js, Express.js, Mongoose, JWT Authentication
