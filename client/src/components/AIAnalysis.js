@@ -51,4 +51,4 @@ const AIAnalysis = () => {
   );
 };
 
-export default AIAnalysis;
+export default AIAnalysis; 

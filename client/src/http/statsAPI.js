@@ -8,4 +8,4 @@ export const fetchStats = async () => {
     console.error("Error fetching stats:", error);
     throw error;
   }
-};
+}; 

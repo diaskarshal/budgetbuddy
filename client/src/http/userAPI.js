@@ -14,7 +14,7 @@ export const registration = async (email, password) => {
     throw error;
   }
 };
-
+ 
 export const login = async (email, password) => {
   try {
     const { data } = await $host.post("api/user/login", { email, password });

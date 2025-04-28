@@ -183,7 +183,7 @@ const Stats = () => {
                       label={cat.categoryName}
                       percentage={cat.percent}
                       lineColor="red"
-                    />
+                    /> 
                   ))
                 )}
               </Card.Body>
