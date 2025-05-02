@@ -10,7 +10,16 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "*",
+    origin: function (origin, callback) {
+      if (
+        !origin ||
+        origin.includes("vercel.app") ||
+        origin.includes("localhost")
+      ) {
+        return callback(null, true);
+      }
+      callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   })
 );
@@ -18,6 +27,10 @@ app.use(
 app.use(express.json());
 app.use("/api", router);
 app.use(errorHandler);
+
+app.get("/", (req, res) => {
+  res.json({ status: "API is running" });
+});
 
 connectDB();
 
