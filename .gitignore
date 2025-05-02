@@ -14,8 +14,11 @@ server/node_modules/
 
 # ===== Environment Files =====
 .env
+.env.production
 client/.env
+client/.env.production
 server/.env
+
 
 # ===== Build Output =====
 dist/

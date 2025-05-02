@@ -18,7 +18,7 @@ class AIAnalysisController {
       const prompt = this.createPrompt(stats, question);
       const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
       const response = await hf.textGeneration({
-        model: "gpt2",
+        model: "gpt2",//change to a better one
         inputs: prompt,
         parameters: {
           max_new_tokens: 250,
@@ -63,10 +63,7 @@ class AIAnalysisController {
   }
 
   createPrompt(stats, question) {
-    return `You are a financial advisor analyzing this user's budget data: Total Income: ${
-      stats.income
-    } Total Expenses: ${stats.expense}
-    Savings Rate: ${(
+    return `Savings Rate: ${(
       ((stats.income - stats.expense) / stats.income) *
       100
     ).toFixed(2)}% Income Categories:${Object.entries(stats.byCategory)
