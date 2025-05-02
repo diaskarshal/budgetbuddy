@@ -13,7 +13,7 @@ const MainPage = () => {
   const { transaction } = useContext(Context);
   const [categories, setCategories] = useState({ income: [], expense: [] });
   const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     frequency: "",
     amount: "",
@@ -22,7 +22,7 @@ const MainPage = () => {
     customAmount: null,
   });
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [,] = useState(1);
   const [showForm, setShowForm] = useState(false);
   const [editTransaction, setEditTransaction] = useState(null);
   const [categoriesLoaded, setCategoriesLoaded] = useState(false);
@@ -80,7 +80,7 @@ const MainPage = () => {
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
-  }, [filters, page, transaction]);
+  }, [filters, transaction]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
